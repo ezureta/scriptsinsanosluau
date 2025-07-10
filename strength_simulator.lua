@@ -6,27 +6,11 @@ local UserInputService = game:GetService("UserInputService")
 local DamageIncreaseOnClickEvent = ReplicatedStorage:WaitForChild("Events"):WaitForChild("DamageIncreaseOnClickEvent")
 local ClickedDuringRace = ReplicatedStorage:WaitForChild("Events"):WaitForChild("RaceEvents"):WaitForChild("ClickedDuringRace")
 
--- UI Setup
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+-- Load the DrRay library from the GitHub repository Library
+local DrRayLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/AZYsGithub/DrRay-UI-Library/main/DrRay.lua"))()
 
-local Window = Fluent:CreateWindow({
-    Title = "Strength Simulator",
-    SubTitle = "by lofil",
-    TabWidth = 160,
-    Size = UDim2.fromOffset(580, 460),
-    Acrylic = true,
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.LeftControl
-})
-
-local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
-}
-
-local Options = Fluent.Options
+-- Create a new window and set its title and theme
+local window = DrRayLibrary:Load("Strength Simulator", "Default")
 
 -- Variables
 local isSpammingStrength = false
@@ -36,287 +20,212 @@ local raceSpeed = 0.001
 local strengthThreads = 5
 local raceThreads = 5
 
-do
-    Fluent:Notify({
-        Title = "Strength Simulator",
-        Content = "Script cargado correctamente",
-        Duration = 5
-    })
+-- Create the main tab
+local mainTab = DrRayLibrary.newTab("Main", "rbxassetid://0")
 
-    Tabs.Main:AddParagraph({
-        Title = "Strength Simulator",
-        Content = "Activa los toggles para hacer spam automático.\nAjusta la velocidad y threads en los sliders."
-    })
+-- Add elements to the main tab
+mainTab.newLabel("Strength Simulator - Auto Click Spam")
+mainTab.newLabel("Activa los toggles para hacer spam automático.")
 
-    -- Toggle para Strength Spam
-    local StrengthToggle = Tabs.Main:AddToggle("StrengthToggle", {
-        Title = "Strength Spam", 
-        Default = false 
-    })
-
-    StrengthToggle:OnChanged(function()
-        if Options.StrengthToggle.Value then
-            isSpammingStrength = true
-            startStrengthSpam()
-            Fluent:Notify({
-                Title = "Strength Spam Activado",
-                Content = "Threads: " .. strengthThreads .. " | Velocidad: " .. strengthSpeed,
-                Duration = 3
-            })
-        else
-            isSpammingStrength = false
-            Fluent:Notify({
-                Title = "Strength Spam Desactivado",
-                Content = "El spam de fuerza se detuvo",
-                Duration = 3
-            })
-        end
-    end)
-
-    -- Toggle para Race Spam
-    local RaceToggle = Tabs.Main:AddToggle("RaceToggle", {
-        Title = "Race Spam", 
-        Default = false 
-    })
-
-    RaceToggle:OnChanged(function()
-        if Options.RaceToggle.Value then
-            isSpammingRace = true
-            startRaceSpam()
-            Fluent:Notify({
-                Title = "Race Spam Activado",
-                Content = "Threads: " .. raceThreads .. " | Velocidad: " .. raceSpeed,
-                Duration = 3
-            })
-        else
-            isSpammingRace = false
-            Fluent:Notify({
-                Title = "Race Spam Desactivado",
-                Content = "El spam de carrera se detuvo",
-                Duration = 3
-            })
-        end
-    end)
-
-    -- Slider para velocidad del Strength Spam
-    local StrengthSpeedSlider = Tabs.Main:AddSlider("StrengthSpeedSlider", {
-        Title = "Velocidad Strength",
-        Description = "Ajusta la velocidad del spam de fuerza",
-        Default = 0.001,
-        Min = 0.0001,
-        Max = 0.01,
-        Rounding = 4,
-        Callback = function(Value)
-            strengthSpeed = Value
-            Fluent:Notify({
-                Title = "Velocidad Strength Actualizada",
-                Content = "Nueva velocidad: " .. Value,
-                Duration = 2
-            })
-        end
-    })
-
-    -- Slider para threads del Strength Spam
-    local StrengthThreadsSlider = Tabs.Main:AddSlider("StrengthThreadsSlider", {
-        Title = "Threads Strength",
-        Description = "Número de threads para el spam de fuerza",
-        Default = 5,
-        Min = 1,
-        Max = 10,
-        Rounding = 0,
-        Callback = function(Value)
-            strengthThreads = Value
-            Fluent:Notify({
-                Title = "Threads Strength Actualizados",
-                Content = "Nuevos threads: " .. Value,
-                Duration = 2
-            })
-        end
-    })
-
-    -- Slider para velocidad del Race Spam
-    local RaceSpeedSlider = Tabs.Main:AddSlider("RaceSpeedSlider", {
-        Title = "Velocidad Race",
-        Description = "Ajusta la velocidad del spam de carrera",
-        Default = 0.001,
-        Min = 0.0001,
-        Max = 0.01,
-        Rounding = 4,
-        Callback = function(Value)
-            raceSpeed = Value
-            Fluent:Notify({
-                Title = "Velocidad Race Actualizada",
-                Content = "Nueva velocidad: " .. Value,
-                Duration = 2
-            })
-        end
-    })
-
-    -- Slider para threads del Race Spam
-    local RaceThreadsSlider = Tabs.Main:AddSlider("RaceThreadsSlider", {
-        Title = "Threads Race",
-        Description = "Número de threads para el spam de carrera",
-        Default = 5,
-        Min = 1,
-        Max = 10,
-        Rounding = 0,
-        Callback = function(Value)
-            raceThreads = Value
-            Fluent:Notify({
-                Title = "Threads Race Actualizados",
-                Content = "Nuevos threads: " .. Value,
-                Duration = 2
-            })
-        end
-    })
-
-    -- Botón manual para Strength
-    Tabs.Main:AddButton({
-        Title = "Click Manual Strength",
-        Description = "Hacer un click manual de fuerza",
-        Callback = function()
-            DamageIncreaseOnClickEvent:FireServer()
-            Fluent:Notify({
-                Title = "Click Enviado",
-                Content = "Se envió un click manual de fuerza",
-                Duration = 2
-            })
-        end
-    })
-
-    -- Botón manual para Race
-    Tabs.Main:AddButton({
-        Title = "Click Manual Race",
-        Description = "Hacer un click manual de carrera",
-        Callback = function()
-            ClickedDuringRace:FireServer()
-            Fluent:Notify({
-                Title = "Click Enviado",
-                Content = "Se envió un click manual de carrera",
-                Duration = 2
-            })
-        end
-    })
-
-    -- Dropdown para presets de velocidad
-    local SpeedPresetDropdown = Tabs.Main:AddDropdown("SpeedPresetDropdown", {
-        Title = "Presets de Velocidad",
-        Description = "Selecciona una velocidad predefinida",
-        Values = {"Ultra Rápido", "Muy Rápido", "Rápido", "Normal", "Lento"},
-        Multi = false,
-        Default = 1,
-    })
-
-    SpeedPresetDropdown:OnChanged(function(Value)
-        if Value == "Ultra Rápido" then
-            strengthSpeed = 0.0001
-            raceSpeed = 0.0001
-        elseif Value == "Muy Rápido" then
-            strengthSpeed = 0.001
-            raceSpeed = 0.001
-        elseif Value == "Rápido" then
-            strengthSpeed = 0.005
-            raceSpeed = 0.005
-        elseif Value == "Normal" then
-            strengthSpeed = 0.01
-            raceSpeed = 0.01
-        elseif Value == "Lento" then
-            strengthSpeed = 0.05
-            raceSpeed = 0.05
-        end
-        
-        StrengthSpeedSlider:SetValue(strengthSpeed)
-        RaceSpeedSlider:SetValue(raceSpeed)
-        
-        Fluent:Notify({
-            Title = "Preset Aplicado",
-            Content = "Preset: " .. Value,
-            Duration = 3
-        })
-    end)
-
-    -- Keybind para activar/desactivar Strength
-    local StrengthKeybind = Tabs.Main:AddKeybind("StrengthKeybind", {
-        Title = "Toggle Strength",
-        Mode = "Toggle",
-        Default = "G",
-        Callback = function(Value)
-            if Value then
-                StrengthToggle:SetValue(not Options.StrengthToggle.Value)
-            end
-        end
-    })
-
-    -- Keybind para activar/desactivar Race
-    local RaceKeybind = Tabs.Main:AddKeybind("RaceKeybind", {
-        Title = "Toggle Race",
-        Mode = "Toggle",
-        Default = "C",
-        Callback = function(Value)
-            if Value then
-                RaceToggle:SetValue(not Options.RaceToggle.Value)
-            end
-        end
-    })
-
-    -- Función de spam ultra rápida para Strength
-    local function startStrengthSpam()
-        for i = 1, strengthThreads do
-            task.spawn(function()
-                while isSpammingStrength do
-                    DamageIncreaseOnClickEvent:FireServer()
-                    task.wait(strengthSpeed)
-                end
-            end)
-        end
+-- Toggle para Strength Spam
+mainTab.newToggle("Strength Spam", "Activa/desactiva el spam de fuerza", false, function(toggleState)
+    if toggleState then
+        isSpammingStrength = true
+        startStrengthSpam()
+        print("Strength Spam ACTIVADO")
+    else
+        isSpammingStrength = false
+        print("Strength Spam DESACTIVADO")
     end
+end)
 
-    -- Función de spam ultra rápida para Race
-    local function startRaceSpam()
-        for i = 1, raceThreads do
-            task.spawn(function()
-                while isSpammingRace do
-                    ClickedDuringRace:FireServer()
-                    task.wait(raceSpeed)
-                end
-            end)
-        end
+-- Toggle para Race Spam
+mainTab.newToggle("Race Spam", "Activa/desactiva el spam de carrera", false, function(toggleState)
+    if toggleState then
+        isSpammingRace = true
+        startRaceSpam()
+        print("Race Spam ACTIVADO")
+    else
+        isSpammingRace = false
+        print("Race Spam DESACTIVADO")
+    end
+end)
+
+-- Botón manual para Strength
+mainTab.newButton("Click Manual Strength", "Hacer un click manual de fuerza", function()
+    DamageIncreaseOnClickEvent:FireServer()
+    print("Click manual de fuerza enviado")
+end)
+
+-- Botón manual para Race
+mainTab.newButton("Click Manual Race", "Hacer un click manual de carrera", function()
+    ClickedDuringRace:FireServer()
+    print("Click manual de carrera enviado")
+end)
+
+-- Input para velocidad Strength
+mainTab.newInput("Velocidad Strength", "Ajusta la velocidad (0.0001 - 0.01)", function(text)
+    local newSpeed = tonumber(text)
+    if newSpeed and newSpeed >= 0.0001 and newSpeed <= 0.01 then
+        strengthSpeed = newSpeed
+        print("Velocidad Strength actualizada: " .. newSpeed)
+    else
+        print("Velocidad inválida. Usa un número entre 0.0001 y 0.01")
+    end
+end)
+
+-- Input para velocidad Race
+mainTab.newInput("Velocidad Race", "Ajusta la velocidad (0.0001 - 0.01)", function(text)
+    local newSpeed = tonumber(text)
+    if newSpeed and newSpeed >= 0.0001 and newSpeed <= 0.01 then
+        raceSpeed = newSpeed
+        print("Velocidad Race actualizada: " .. newSpeed)
+    else
+        print("Velocidad inválida. Usa un número entre 0.0001 y 0.01")
+    end
+end)
+
+-- Input para threads Strength
+mainTab.newInput("Threads Strength", "Número de threads (1-10)", function(text)
+    local newThreads = tonumber(text)
+    if newThreads and newThreads >= 1 and newThreads <= 10 then
+        strengthThreads = newThreads
+        print("Threads Strength actualizados: " .. newThreads)
+    else
+        print("Threads inválidos. Usa un número entre 1 y 10")
+    end
+end)
+
+-- Input para threads Race
+mainTab.newInput("Threads Race", "Número de threads (1-10)", function(text)
+    local newThreads = tonumber(text)
+    if newThreads and newThreads >= 1 and newThreads <= 10 then
+        raceThreads = newThreads
+        print("Threads Race actualizados: " .. newThreads)
+    else
+        print("Threads inválidos. Usa un número entre 1 y 10")
+    end
+end)
+
+-- Dropdown para presets de velocidad
+mainTab.newDropdown("Presets de Velocidad", "Selecciona una velocidad predefinida", {
+    "Ultra Rápido (0.0001)",
+    "Muy Rápido (0.001)", 
+    "Rápido (0.005)",
+    "Normal (0.01)",
+    "Lento (0.05)"
+}, function(selectedOption)
+    if selectedOption == "Ultra Rápido (0.0001)" then
+        strengthSpeed = 0.0001
+        raceSpeed = 0.0001
+    elseif selectedOption == "Muy Rápido (0.001)" then
+        strengthSpeed = 0.001
+        raceSpeed = 0.001
+    elseif selectedOption == "Rápido (0.005)" then
+        strengthSpeed = 0.005
+        raceSpeed = 0.005
+    elseif selectedOption == "Normal (0.01)" then
+        strengthSpeed = 0.01
+        raceSpeed = 0.01
+    elseif selectedOption == "Lento (0.05)" then
+        strengthSpeed = 0.05
+        raceSpeed = 0.05
+    end
+    print("Preset aplicado: " .. selectedOption)
+end)
+
+-- Create the settings tab
+local settingsTab = DrRayLibrary.newTab("Settings", "rbxassetid://0")
+
+-- Add elements to the settings tab
+settingsTab.newLabel("Configuración del Simulador")
+settingsTab.newLabel("Aquí puedes ajustar configuraciones adicionales.")
+
+-- Toggle para mostrar estadísticas
+settingsTab.newToggle("Mostrar Estadísticas", "Muestra clicks por segundo", false, function(toggleState)
+    if toggleState then
+        print("Estadísticas activadas")
+        startStats()
+    else
+        print("Estadísticas desactivadas")
+        stopStats()
+    end
+end)
+
+-- Input para keybind personalizado
+settingsTab.newInput("Keybind Personalizado", "Presiona una tecla para el keybind", function(text)
+    print("Keybind configurado: " .. text)
+end)
+
+-- Función de spam ultra rápida para Strength
+local function startStrengthSpam()
+    for i = 1, strengthThreads do
+        task.spawn(function()
+            while isSpammingStrength do
+                DamageIncreaseOnClickEvent:FireServer()
+                task.wait(strengthSpeed)
+            end
+        end)
     end
 end
 
--- Hand the library over to our managers
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
+-- Función de spam ultra rápida para Race
+local function startRaceSpam()
+    for i = 1, raceThreads do
+        task.spawn(function()
+            while isSpammingRace do
+                ClickedDuringRace:FireServer()
+                task.wait(raceSpeed)
+            end
+        end)
+    end
+end
 
--- Ignore keys that are used by ThemeManager.
-SaveManager:IgnoreThemeSettings()
+-- Variables para estadísticas
+local statsEnabled = false
+local clickCount = 0
+local startTime = 0
 
--- You can add indexes of elements the save manager should ignore
-SaveManager:SetIgnoreIndexes({})
+-- Función para mostrar estadísticas
+local function startStats()
+    statsEnabled = true
+    clickCount = 0
+    startTime = tick()
+    
+    task.spawn(function()
+        while statsEnabled and (isSpammingStrength or isSpammingRace) do
+            task.wait(1)
+            local elapsed = tick() - startTime
+            local clicksPerSecond = clickCount / elapsed
+            print("Clicks por segundo: " .. string.format("%.2f", clicksPerSecond))
+        end
+    end)
+end
 
--- use case for doing it this way:
--- a script hub could have themes in a global folder
--- and game configs in a separate folder per game
-InterfaceManager:SetFolder("StrengthSimulator")
-SaveManager:SetFolder("StrengthSimulator/configs")
+local function stopStats()
+    statsEnabled = false
+end
 
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-SaveManager:BuildConfigSection(Tabs.Settings)
+-- Contador de clicks
+local originalStrengthFireServer = DamageIncreaseOnClickEvent.FireServer
+DamageIncreaseOnClickEvent.FireServer = function(self, ...)
+    clickCount = clickCount + 1
+    return originalStrengthFireServer(self, ...)
+end
 
-Window:SelectTab(1)
+local originalRaceFireServer = ClickedDuringRace.FireServer
+ClickedDuringRace.FireServer = function(self, ...)
+    clickCount = clickCount + 1
+    return originalRaceFireServer(self, ...)
+end
 
-Fluent:Notify({
-    Title = "Strength Simulator",
-    Content = "El script se ha cargado correctamente. Usa G para Strength, C para Race.",
-    Duration = 8
-})
-
--- You can use the SaveManager:LoadAutoloadConfig() to load a config
--- which has been marked to be one that auto loads!
-SaveManager:LoadAutoloadConfig()
+-- Notificación de carga
+print("Strength Simulator cargado correctamente!")
+print("Usa los toggles para activar/desactivar el spam automático")
 
 -- Cleanup cuando se desmonte el script
 game:BindToClose(function()
     isSpammingStrength = false
     isSpammingRace = false
+    statsEnabled = false
 end)

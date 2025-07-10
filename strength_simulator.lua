@@ -20,6 +20,55 @@ local raceSpeed = 0.001
 local strengthThreads = 5
 local raceThreads = 5
 
+-- Variables para estadísticas
+local statsEnabled = false
+local clickCount = 0
+local startTime = 0
+
+-- Función de spam ultra rápida para Strength
+local function startStrengthSpam()
+    for i = 1, strengthThreads do
+        task.spawn(function()
+            while isSpammingStrength do
+                DamageIncreaseOnClickEvent:FireServer()
+                task.wait(strengthSpeed)
+            end
+        end)
+    end
+end
+
+-- Función de spam ultra rápida para Race
+local function startRaceSpam()
+    for i = 1, raceThreads do
+        task.spawn(function()
+            while isSpammingRace do
+                ClickedDuringRace:FireServer()
+                task.wait(raceSpeed)
+            end
+        end)
+    end
+end
+
+-- Función para mostrar estadísticas
+local function startStats()
+    statsEnabled = true
+    clickCount = 0
+    startTime = tick()
+    
+    task.spawn(function()
+        while statsEnabled and (isSpammingStrength or isSpammingRace) do
+            task.wait(1)
+            local elapsed = tick() - startTime
+            local clicksPerSecond = clickCount / elapsed
+            print("Clicks por segundo: " .. string.format("%.2f", clicksPerSecond))
+        end
+    end)
+end
+
+local function stopStats()
+    statsEnabled = false
+end
+
 -- Create the main tab
 local mainTab = DrRayLibrary.newTab("Main", "rbxassetid://0")
 
@@ -156,55 +205,6 @@ end)
 settingsTab.newInput("Keybind Personalizado", "Presiona una tecla para el keybind", function(text)
     print("Keybind configurado: " .. text)
 end)
-
--- Función de spam ultra rápida para Strength
-local function startStrengthSpam()
-    for i = 1, strengthThreads do
-        task.spawn(function()
-            while isSpammingStrength do
-                DamageIncreaseOnClickEvent:FireServer()
-                task.wait(strengthSpeed)
-            end
-        end)
-    end
-end
-
--- Función de spam ultra rápida para Race
-local function startRaceSpam()
-    for i = 1, raceThreads do
-        task.spawn(function()
-            while isSpammingRace do
-                ClickedDuringRace:FireServer()
-                task.wait(raceSpeed)
-            end
-        end)
-    end
-end
-
--- Variables para estadísticas
-local statsEnabled = false
-local clickCount = 0
-local startTime = 0
-
--- Función para mostrar estadísticas
-local function startStats()
-    statsEnabled = true
-    clickCount = 0
-    startTime = tick()
-    
-    task.spawn(function()
-        while statsEnabled and (isSpammingStrength or isSpammingRace) do
-            task.wait(1)
-            local elapsed = tick() - startTime
-            local clicksPerSecond = clickCount / elapsed
-            print("Clicks por segundo: " .. string.format("%.2f", clicksPerSecond))
-        end
-    end)
-end
-
-local function stopStats()
-    statsEnabled = false
-end
 
 -- Contador de clicks
 local originalStrengthFireServer = DamageIncreaseOnClickEvent.FireServer

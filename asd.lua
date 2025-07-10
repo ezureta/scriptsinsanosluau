@@ -10,7 +10,7 @@ local ClickedDuringRace = ReplicatedStorage:WaitForChild("Events"):WaitForChild(
 local isSpammingStrength = false
 local isSpammingRace = false
 
--- Funciones de spam
+-- Spam functions
 local function startStrengthSpam()
     task.spawn(function()
         while isSpammingStrength do
@@ -29,14 +29,14 @@ local function startRaceSpam()
     end)
 end
 
--- Librería Fluent y ventana
+-- Fluent UI
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Fluent " .. Fluent.Version,
-    SubTitle = "by dawid",
+    Title = "Pinneaple Hub (not obii) - Strength Simulator",
+    SubTitle = "powered by Fluent UI",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
@@ -51,54 +51,63 @@ local Tabs = {
 
 local Options = Fluent.Options
 
--- Contenido de Main
 do
-    -- Notif inicial
-    Fluent:Notify({ Title = "Fluent", Content = "Script cargado.", Duration = 5 })
+    Fluent:Notify({ Title = "Pinneaple Hub", Content = "Script successfully loaded.", Duration = 5 })
 
-    -- Toggles existentes...
-    -- [Aquí irían los demás controles que ya tenías]
-
-    -- Toggle Strength Spam
+    -- Strength Toggle
     local StrengthToggle = Tabs.Main:AddToggle("StrengthSpam", {
-        Title = "Strength Spam (G)",
+        Title = "Auto Strength (G)",
         Default = false
     })
     StrengthToggle:OnChanged(function(value)
         isSpammingStrength = value
         if value then
             startStrengthSpam()
-            print("Strength Spam ACTIVADO via UI")
+            print("Auto Strength ENABLED via UI")
         else
-            print("Strength Spam DESACTIVADO via UI")
+            print("Auto Strength DISABLED via UI")
         end
     end)
 
-    -- Toggle Race Spam
+    -- Race Toggle
     local RaceToggle = Tabs.Main:AddToggle("RaceSpam", {
-        Title = "Race Spam (C)",
+        Title = "Auto Race (C)",
         Default = false
     })
     RaceToggle:OnChanged(function(value)
         isSpammingRace = value
         if value then
             startRaceSpam()
-            print("Race Spam ACTIVADO via UI")
+            print("Auto Race ENABLED via UI")
         else
-            print("Race Spam DESACTIVADO via UI")
+            print("Auto Race DISABLED via UI")
         end
     end)
 
-    -- Notificación final
-    Fluent:Notify({ Title = "Fluent", Content = "Añadidos Strength/Race Toggles.", Duration = 5 })
+    -- Keyboard bindings (optional if user prefers keys)
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if not gameProcessed and input.KeyCode == Enum.KeyCode.G then
+            isSpammingStrength = not isSpammingStrength
+            StrengthToggle:SetValue(isSpammingStrength)
+        elseif not gameProcessed and input.KeyCode == Enum.KeyCode.C then
+            isSpammingRace = not isSpammingRace
+            RaceToggle:SetValue(isSpammingRace)
+        end
+    end)
+
+    Fluent:Notify({
+        Title = "Pinneaple Hub",
+        Content = "Auto Strength and Auto Race toggles added.",
+        Duration = 5
+    })
 end
 
--- Resto de addons y save/interface manager
+-- Save system
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
 SaveManager:IgnoreThemeSettings()
-InterfaceManager:SetFolder("FluentScriptHub")
-SaveManager:SetFolder("FluentScriptHub/specific-game")
+InterfaceManager:SetFolder("PinneapleHub")
+SaveManager:SetFolder("PinneapleHub/StrengthSimulator")
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 Window:SelectTab(1)

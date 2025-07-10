@@ -82,7 +82,7 @@ local function stopStats()
 end
 
 -- Create the main tab
-local mainTab = DrRayLibrary.newTab("Main", "rbxassetid://0")
+local mainTab = window:AddTab("Main", "rbxassetid://0")
 
 -- Verificar que el tab se creó correctamente
 if not mainTab then
@@ -202,7 +202,7 @@ mainTab.newDropdown("Presets de Velocidad", "Selecciona una velocidad predefinid
 end)
 
 -- Create the settings tab
-local settingsTab = DrRayLibrary.newTab("Settings", "rbxassetid://0")
+local settingsTab = window:AddTab("Settings", "rbxassetid://0")
 
 -- Verificar que el tab de settings se creó correctamente
 if not settingsTab then

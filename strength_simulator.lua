@@ -9,8 +9,20 @@ local ClickedDuringRace = ReplicatedStorage:WaitForChild("Events"):WaitForChild(
 -- Load the DrRay library from the GitHub repository Library
 local DrRayLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/AZYsGithub/DrRay-UI-Library/main/DrRay.lua"))()
 
+-- Verificar que la librería se cargó correctamente
+if not DrRayLibrary then
+    print("Error: No se pudo cargar la librería DrRay")
+    return
+end
+
 -- Create a new window and set its title and theme
 local window = DrRayLibrary:Load("Strength Simulator", "Default")
+
+-- Verificar que la ventana se creó correctamente
+if not window then
+    print("Error: No se pudo crear la ventana")
+    return
+end
 
 -- Variables
 local isSpammingStrength = false
@@ -71,6 +83,12 @@ end
 
 -- Create the main tab
 local mainTab = DrRayLibrary.newTab("Main", "rbxassetid://0")
+
+-- Verificar que el tab se creó correctamente
+if not mainTab then
+    print("Error: No se pudo crear el tab principal")
+    return
+end
 
 -- Add elements to the main tab
 mainTab.newLabel("Strength Simulator - Auto Click Spam")
@@ -185,6 +203,12 @@ end)
 
 -- Create the settings tab
 local settingsTab = DrRayLibrary.newTab("Settings", "rbxassetid://0")
+
+-- Verificar que el tab de settings se creó correctamente
+if not settingsTab then
+    print("Error: No se pudo crear el tab de settings")
+    return
+end
 
 -- Add elements to the settings tab
 settingsTab.newLabel("Configuración del Simulador")

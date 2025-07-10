@@ -35,7 +35,7 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/d
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Pinneaple Hub (not obii) - Strength Simulator",
+    Title = "aaaaaaaaaaaaaaaaaaa",
     SubTitle = "made by Ezureta • powered by Fluent UI",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),

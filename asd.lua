@@ -29,14 +29,14 @@ local function startRaceSpam()
     end)
 end
 
--- Fluent UI
+-- UI
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
 local Window = Fluent:CreateWindow({
     Title = "Pinneaple Hub (not obii) - Strength Simulator",
-    SubTitle = "made by Ezureta :3",
+    SubTitle = "made by Ezureta • powered by Fluent UI",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
@@ -45,20 +45,24 @@ local Window = Fluent:CreateWindow({
 })
 
 local Tabs = {
-    Main = Window:AddTab({ Title = "Main", Icon = "" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+    Main = Window:AddTab({ Title = "Auto Farm", Icon = "flame" }),
+    Pets = Window:AddTab({ Title = "Pets", Icon = "paw-print" }),
+    Ascend = Window:AddTab({ Title = "Auto Ascend", Icon = "chevrons-up" }),
+    Upgrades = Window:AddTab({ Title = "Upgrades", Icon = "trending-up" }),
+    Misc = Window:AddTab({ Title = "Misc", Icon = "settings" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "sliders" })
 }
 
 local Options = Fluent.Options
 
+-- Real Toggles
 do
     Fluent:Notify({
         Title = "Pinneaple Hub",
-        Content = "Loaded successfully - made by Ezureta.",
+        Content = "Script loaded - made by Ezureta.",
         Duration = 5
     })
 
-    -- Strength Toggle
     local StrengthToggle = Tabs.Main:AddToggle("StrengthSpam", {
         Title = "Auto Strength (G)",
         Default = false
@@ -67,13 +71,9 @@ do
         isSpammingStrength = value
         if value then
             startStrengthSpam()
-            print("Auto Strength ENABLED via UI")
-        else
-            print("Auto Strength DISABLED via UI")
         end
     end)
 
-    -- Race Toggle
     local RaceToggle = Tabs.Main:AddToggle("RaceSpam", {
         Title = "Auto Race (C)",
         Default = false
@@ -82,13 +82,9 @@ do
         isSpammingRace = value
         if value then
             startRaceSpam()
-            print("Auto Race ENABLED via UI")
-        else
-            print("Auto Race DISABLED via UI")
         end
     end)
 
-    -- Optional keybind toggles
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if not gameProcessed and input.KeyCode == Enum.KeyCode.G then
             isSpammingStrength = not isSpammingStrength
@@ -98,15 +94,56 @@ do
             RaceToggle:SetValue(isSpammingRace)
         end
     end)
+end
 
-    Fluent:Notify({
-        Title = "Pinneaple Hub",
-        Content = "Toggles loaded (Auto Strength & Auto Race)",
-        Duration = 5
+-- Fake UI elements to "fill up"
+local function AddFakeControls(tab)
+    tab:AddParagraph({ Title = "Info", Content = "Feature under development..." })
+
+    tab:AddToggle("FakeToggle_" .. tab.Title, {
+        Title = "Enable " .. tab.Title,
+        Default = false,
+        Callback = function(val) print(tab.Title .. " toggle:", val) end
+    })
+
+    tab:AddSlider("FakeSlider_" .. tab.Title, {
+        Title = "Speed Setting",
+        Description = "Adjust the automation speed",
+        Min = 1,
+        Max = 100,
+        Default = 50,
+        Rounding = 0,
+        Callback = function(val) print("Slider changed in " .. tab.Title, val) end
+    })
+
+    tab:AddDropdown("FakeDropdown_" .. tab.Title, {
+        Title = "Select Mode",
+        Values = { "Normal", "Fast", "Extreme" },
+        Default = 1,
+        Multi = false,
+        Callback = function(val) print("Dropdown selected in " .. tab.Title, val) end
+    })
+
+    tab:AddInput("FakeInput_" .. tab.Title, {
+        Title = "Custom Value",
+        Default = "",
+        Placeholder = "Enter value...",
+        Callback = function(val) print("Input set in " .. tab.Title, val) end
+    })
+
+    tab:AddButton({
+        Title = "Execute " .. tab.Title,
+        Description = "Placeholder button",
+        Callback = function() print("Executed", tab.Title) end
     })
 end
 
--- Save system
+AddFakeControls(Tabs.Pets)
+AddFakeControls(Tabs.Ascend)
+AddFakeControls(Tabs.Upgrades)
+AddFakeControls(Tabs.Misc)
+
+-- SaveManager setup
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
 SaveManager:IgnoreThemeSettings()

@@ -36,7 +36,7 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 
 local Window = Fluent:CreateWindow({
     Title = "Pinneaple Hub (not obii) - Strength Simulator",
-    SubTitle = "powered by Fluent UI",
+    SubTitle = "made by Ezureta :3",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = true,
@@ -52,7 +52,11 @@ local Tabs = {
 local Options = Fluent.Options
 
 do
-    Fluent:Notify({ Title = "Pinneaple Hub", Content = "Script successfully loaded.", Duration = 5 })
+    Fluent:Notify({
+        Title = "Pinneaple Hub",
+        Content = "Loaded successfully - made by Ezureta.",
+        Duration = 5
+    })
 
     -- Strength Toggle
     local StrengthToggle = Tabs.Main:AddToggle("StrengthSpam", {
@@ -84,7 +88,7 @@ do
         end
     end)
 
-    -- Keyboard bindings (optional if user prefers keys)
+    -- Optional keybind toggles
     UserInputService.InputBegan:Connect(function(input, gameProcessed)
         if not gameProcessed and input.KeyCode == Enum.KeyCode.G then
             isSpammingStrength = not isSpammingStrength
@@ -97,7 +101,7 @@ do
 
     Fluent:Notify({
         Title = "Pinneaple Hub",
-        Content = "Auto Strength and Auto Race toggles added.",
+        Content = "Toggles loaded (Auto Strength & Auto Race)",
         Duration = 5
     })
 end

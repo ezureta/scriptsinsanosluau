@@ -3,10 +3,7 @@ local player = game.Players.LocalPlayer
 -- Función para encontrar la granja del jugador
 local function encontrarMiGranja()
     local raiz = workspace:FindFirstChild("Farm")
-    if not raiz then
-        warn("No se encontró la raíz de la granja.")
-        return nil
-    end
+    if not raiz then return nil end
     for _, subFarm in ipairs(raiz:GetChildren()) do
         if subFarm.Name == "Farm" and subFarm:FindFirstChild("Important") then
             local data = subFarm.Important:FindFirstChild("Data")
@@ -18,7 +15,6 @@ local function encontrarMiGranja()
             end
         end
     end
-    warn("No se encontró la granja del jugador.")
     return nil
 end
 
@@ -59,22 +55,12 @@ if miGranja then
         -- Llamar al evento remoto para cada planta
         for _, planta in ipairs(plantas) do
             local args = {canPlant.Position, planta}
-
-            -- Depuración antes de llamar al evento remoto
-            print("Enviando evento para plantar:", planta)
-            local success, err = pcall(function()
-                game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("Plant_RE"):FireServer(unpack(args))
-            end)
-
-            if success then
-                print("Evento enviado correctamente para", planta)
-            else
-                warn("Error al enviar el evento para", planta, "Error:", err)
-            end
+            game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("Plant_RE"):FireServer(unpack(args))
         end
     else
-        warn("No se encontró Can_Plant o no es una parte válida.")
+        warn("No se encontró Can_Plant o no es una parte.")
     end
 else
     warn("No se encontró tu granja.")
 end
+--as

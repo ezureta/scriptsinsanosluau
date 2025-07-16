@@ -1,9 +1,12 @@
 local player = game.Players.LocalPlayer
-
+--3
 -- Función para encontrar la granja del jugador
 local function encontrarMiGranja()
     local raiz = workspace:FindFirstChild("Farm")
-    if not raiz then return nil end
+    if not raiz then
+        warn("No se encontró la raíz de la granja.")
+        return nil
+    end
     for _, subFarm in ipairs(raiz:GetChildren()) do
         if subFarm.Name == "Farm" and subFarm:FindFirstChild("Important") then
             local data = subFarm.Important:FindFirstChild("Data")
@@ -15,6 +18,7 @@ local function encontrarMiGranja()
             end
         end
     end
+    warn("No se encontró la granja del jugador.")
     return nil
 end
 
@@ -27,6 +31,10 @@ if miGranja then
     if canPlant and canPlant:IsA("BasePart") then
         print("Parte encontrada:", canPlant:GetFullName(), "Posición:", tostring(canPlant.Position))
         
+        -- Obtener las dimensiones de la parte Can_Plant
+        local partSize = canPlant.Size
+        local partPosition = canPlant.Position
+
         -- Lista de plantas que pueden ser usadas
         local plantas = {
             "Carrot", "Strawberry", "Blueberry", "Orange Tulip", "Tomato", "Corn", 
@@ -52,15 +60,35 @@ if miGranja then
             "Giant Pinecone", "Taro Flower"
         }
 
-        -- Llamar al evento remoto para cada planta
+        -- Función para generar una posición aleatoria dentro de la parte
+        local function generarPosicionAleatoria()
+            local randomX = math.random(-partSize.X/2, partSize.X/2)
+            local randomY = math.random(-partSize.Y/2, partSize.Y/2)
+            local randomZ = math.random(-partSize.Z/2, partSize.Z/2)
+
+            return partPosition + Vector3.new(randomX, randomY, randomZ)
+        end
+
+        -- Llamar al evento remoto para cada planta en una posición aleatoria
         for _, planta in ipairs(plantas) do
-            local args = {canPlant.Position, planta}
-            game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("Plant_RE"):FireServer(unpack(args))
+            local posAleatoria = generarPosicionAleatoria()
+            local args = {posAleatoria, planta}
+
+            -- Depuración antes de llamar al evento remoto
+            print("Enviando evento para plantar:", planta, "Posición aleatoria:", tostring(posAleatoria))
+            local success, err = pcall(function()
+                game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("Plant_RE"):FireServer(unpack(args))
+            end)
+
+            if success then
+                print("Evento enviado correctamente para", planta)
+            else
+                warn("Error al enviar el evento para", planta, "Error:", err)
+            end
         end
     else
-        warn("No se encontró Can_Plant o no es una parte.")
+        warn("No se encontró Can_Plant o no es una parte válida.")
     end
 else
     warn("No se encontró tu granja.")
 end
---as

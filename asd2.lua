@@ -1,5 +1,5 @@
 local player = game.Players.LocalPlayer
---3
+--4
 -- Función para encontrar la granja del jugador
 local function encontrarMiGranja()
     local raiz = workspace:FindFirstChild("Farm")
